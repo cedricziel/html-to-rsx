@@ -31,7 +31,7 @@ fn element_parser(element: Element) -> String {
 
     for (atbr, val) in &element.attributes {
         let res = if let Some(v) = val {
-            format!("{atbr}: \"{v}\" ")
+            format!("{atbr}: \"{v}\", ")
         } else {
             format!("{atbr},")
         };
