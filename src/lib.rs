@@ -193,16 +193,16 @@ mod tests {
 
     #[test]
     fn can_transform_simple() {
-        assert_eq!("div {  }".to_string(), parse("<div/>").expect("should parse html"))
+        assert_eq!("div {\n\n}".to_string(), parse("<div/>").expect("should parse html"))
     }
 
     #[test]
     fn can_transform_with_attributes() {
-        assert_eq!("div { bingo: \"bongo\", class: \"foo bar\", disabled, \"Bla\" }", parse("<div class=\"foo bar\" bingo=\"bongo\" disabled>Bla</div>").expect("should parse html"))
+        assert_eq!("div {\n  bingo: \"bongo\",\n  class: \"foo bar\",\n  disabled,\n    \"Bla\"\n}", parse("<div class=\"foo bar\" bingo=\"bongo\" disabled>Bla</div>").expect("should parse html"))
     }
 
     #[test]
     fn can_print_nested() {
-        assert_eq!("div { bingo: \"bongo\", class: \"foo bar\", disabled, \"Bla\" }", parse("<div class=\"foo bar\" bingo=\"bongo\" disabled>Bla<p foo=\"bar\">Test</p></div>").expect("should parse html"))
+        assert_eq!("div {\n  bingo: \"bongo\",\n  class: \"foo bar\",\n  disabled,\n    \"Bla\",\n  p {\n    foo: \"bar\",\n    \"Test\"\n  }\n}", parse("<div class=\"foo bar\" bingo=\"bongo\" disabled>Bla<p foo=\"bar\">Test</p></div>").expect("should parse html"))
     }
 }
