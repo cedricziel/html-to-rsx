@@ -154,10 +154,26 @@ impl Display for RSXElement {
                     Some(c) => format!("{:indent$}  \"{}\"", "", c.to_string(), indent=indent),
                 })
             },
-            RSXElementKind::Comment => write!(f, "/// {}", match &self.content {
-                None => "".to_string(),
-                Some(c) => c.to_string()
-            })
+            RSXElementKind::Comment => {
+                let comment : String = if let Some(c) = &self.content {
+                    c.to_string()
+                } else {
+                    "".to_string()
+                };
+
+                let indent = match self.depth % 2  {
+                    0 => 0,
+                    _ => self.depth * 2
+                };
+
+                let comment = comment
+                    .split("\n")
+                    .map(|s| format!("{:indent$}/// {}", "", s, indent=indent))
+                    .collect::<Vec<_>>()
+                    .join("\n");
+
+                write!(f, "{}", comment)
+            }
         }
     }
 }
@@ -204,5 +220,25 @@ mod tests {
     #[test]
     fn can_print_nested() {
         assert_eq!("div {\n  bingo: \"bongo\",\n  class: \"foo bar\",\n  disabled,\n    \"Bla\",\n  p {\n    foo: \"bar\",\n    \"Test\"\n  }\n}", parse("<div class=\"foo bar\" bingo=\"bongo\" disabled>Bla<p foo=\"bar\">Test</p></div>").expect("should parse html"))
+    }
+
+    #[test]
+    fn can_handle_multiline_comments() {
+        assert_eq!(
+            "/// This example requires some changes to your config:\n/// \n///   ```\n///   // tailwind.config.js\n///   module.exports = {\n///     // ...\n///     plugins: [\n///       // ...\n///       require('@tailwindcss/forms'),\n///     ],\n///   }\n///   ```".to_string(),
+                   parse("<!--
+  This example requires some changes to your config:
+
+  ```
+  // tailwind.config.js
+  module.exports = {
+    // ...
+    plugins: [
+      // ...
+      require('@tailwindcss/forms'),
+    ],
+  }
+  ```
+-->").expect("should parse"))
     }
 }
